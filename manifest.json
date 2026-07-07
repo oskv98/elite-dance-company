@@ -1,0 +1,23 @@
+{
+  "name": "Elite Dance Company",
+  "short_name": "Elite Dance",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#07030c",
+  "theme_color": "#07030c",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
