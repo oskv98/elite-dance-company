@@ -45,15 +45,31 @@ export async function onRequest(context) {
     }
 
     try {
-        // ── GET: historial de pagos de un alumno ──
+        // ── GET: historial de pagos de un alumno, o de TODOS (para reportes) ──
         if (request.method === 'GET') {
             const alumnoId = url.searchParams.get('alumno_id');
-            if (!alumnoId) {
-                return new Response(JSON.stringify({ error: 'Falta alumno_id' }), { status: 400, headers: CORS });
+            const desde = url.searchParams.get('desde'); // YYYY-MM-DD, opcional
+            const hasta = url.searchParams.get('hasta'); // YYYY-MM-DD, opcional
+
+            if (alumnoId) {
+                const data = await supabaseFetch(
+                    env,
+                    `pagos?alumno_id=eq.${alumnoId}&select=*&order=fecha_pago.desc`,
+                    { method: 'GET', headers: { 'Prefer': 'return=representation' } }
+                );
+                return new Response(JSON.stringify({ ok: true, data: data || [] }), {
+                    status: 200, headers: { ...CORS, 'Cache-Control': 'no-store' },
+                });
             }
+
+            // Sin alumno_id: devuelve todos los pagos (opcionalmente filtrados por fecha),
+            // usado por la pestaña de Finanzas para sumar ingresos.
+            let filtro = '';
+            if (desde) filtro += `&fecha_pago=gte.${desde}`;
+            if (hasta) filtro += `&fecha_pago=lte.${hasta}`;
             const data = await supabaseFetch(
                 env,
-                `pagos?alumno_id=eq.${alumnoId}&select=*&order=fecha_pago.desc`,
+                `pagos?select=*${filtro}&order=fecha_pago.desc`,
                 { method: 'GET', headers: { 'Prefer': 'return=representation' } }
             );
             return new Response(JSON.stringify({ ok: true, data: data || [] }), {
@@ -64,24 +80,30 @@ export async function onRequest(context) {
         // ── POST: registrar un pago ──
         if (request.method === 'POST') {
             const body = await request.json().catch(() => ({}));
-            const { alumno_id, tasa, monto_usd, fecha_pago } = body;
+            const { alumno_id, monto_usd, fecha_pago } = body;
+            const moneda_pago = body.moneda_pago === 'USD' ? 'USD' : 'Bs';
 
-            if (!alumno_id || !tasa || !monto_usd) {
+            if (!alumno_id || !monto_usd) {
                 return new Response(JSON.stringify({
-                    error: 'Faltan campos: alumno_id, tasa, monto_usd',
+                    error: 'Faltan campos: alumno_id, monto_usd',
+                }), { status: 400, headers: CORS });
+            }
+            if (moneda_pago === 'Bs' && !body.tasa) {
+                return new Response(JSON.stringify({
+                    error: 'Falta la tasa para un pago en Bs',
                 }), { status: 400, headers: CORS });
             }
 
-            const tasaNum   = parseFloat(tasa);
             const montoUsd  = parseFloat(monto_usd);
-            const montoBs   = tasaNum * montoUsd;
+            const tasaNum   = moneda_pago === 'Bs' ? parseFloat(body.tasa) : null;
+            const montoBs   = moneda_pago === 'Bs' ? tasaNum * montoUsd : null;
             const fecha     = fecha_pago || new Date().toISOString().slice(0, 10);
 
             const nuevoPago = await supabaseFetch(env, 'pagos', {
                 method: 'POST',
                 headers: { 'Prefer': 'return=representation' },
                 body: JSON.stringify({
-                    alumno_id, fecha_pago: fecha,
+                    alumno_id, fecha_pago: fecha, moneda_pago,
                     tasa: tasaNum, monto_usd: montoUsd, monto_bs: montoBs,
                 }),
             });
