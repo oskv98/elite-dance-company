@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Elite Dance Company</title>
+<meta name="theme-color" content="#07030c">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #07030c;
+    --bg2: #0d0714;
+    --card: rgba(255,255,255,0.045);
+    --card-hover: rgba(255,255,255,0.075);
+    --border: rgba(255,255,255,0.10);
+    --text: #f3eef9;
+    --text-dim: #a99bb8;
+    --purple: #8b2fc9;
+    --magenta: #c026a3;
+    --pink: #ec2c6d;
+    --orange: #f2994a;
+    --yellow: #ffe600;
+    --gradient: linear-gradient(135deg, #8b2fc9 0%, #d6249f 45%, #f2994a 100%);
+    --gradient-soft: linear-gradient(135deg, rgba(139,47,201,0.18), rgba(214,36,159,0.14), rgba(242,153,74,0.12));
+    --danger: #ff4d6d;
+    --radius: 16px;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+    margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: 'Inter', sans-serif; min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    width: 100%; overflow-x: hidden; overscroll-behavior: none; touch-action: pan-y;
+}
+body {
+    background:
+        radial-gradient(ellipse 600px 400px at 15% -5%, rgba(139,47,201,0.20), transparent 60%),
+        radial-gradient(ellipse 500px 400px at 100% 10%, rgba(242,153,74,0.14), transparent 55%),
+        var(--bg);
+}
+h1, h2, h3 { font-family: 'Poppins', sans-serif; margin: 0; }
+.script { font-family: 'Caveat', cursive; }
+button { font-family: inherit; cursor: pointer; }
+input, select, textarea { font-family: inherit; }
+
+/* ── Splash ── */
+#splash {
+    position: fixed; inset: 0; background: var(--bg); z-index: 999;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 18px; transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+#splash.oculto { opacity: 0; visibility: hidden; pointer-events: none; }
+#splash img { width: 62vw; max-width: 260px; animation: flotar 3.2s ease-in-out infinite; filter: drop-shadow(0 0 40px rgba(214,36,159,0.35)); }
+@keyframes flotar { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+#splash .tagline { font-family: 'Caveat', cursive; font-size: 22px; color: var(--text-dim); letter-spacing: 0.5px; }
+#splash .cargando { display: flex; gap: 6px; margin-top: 6px; }
+#splash .punto { width: 7px; height: 7px; border-radius: 50%; background: var(--gradient); animation: pulso 1.2s ease-in-out infinite; }
+#splash .punto:nth-child(2) { animation-delay: 0.15s; }
+#splash .punto:nth-child(3) { animation-delay: 0.3s; }
+@keyframes pulso { 0%,80%,100% { opacity: 0.25; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.15); } }
+#splash-entrar {
+    margin-top: 8px; padding: 12px 32px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18);
+    background: var(--gradient); color: #fff; font-weight: 700; font-size: 14px;
+    letter-spacing: 0.4px; display: none; box-shadow: 0 8px 24px rgba(214,36,159,0.25);
+}
+
+/* ── App shell ── */
+#app { display: none; max-width: 560px; margin: 0 auto; padding-bottom: 90px; min-height: 100vh; }
+#app.visible { display: block; }
+
+header.topbar {
+    position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px; background: rgba(7,3,12,0.85); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+}
+header.topbar img { width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 0 8px rgba(214,36,159,0.4)); }
+header.topbar .titulo { flex: 1; }
+header.topbar .titulo h1 { font-size: 15.5px; font-weight: 800; letter-spacing: 0.3px; }
+header.topbar .titulo span { font-size: 10.5px; color: var(--text-dim); }
+#btn-campana {
+    width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--card); display: flex; align-items: center; justify-content: center;
+    font-size: 16px; position: relative;
+}
+#btn-campana.activa { border-color: rgba(255,230,0,0.5); background: rgba(255,230,0,0.08); }
+#btn-campana .punto-activo {
+    position: absolute; top: 6px; right: 7px; width: 7px; height: 7px; border-radius: 50%;
+    background: #34d399; display: none; box-shadow: 0 0 6px #34d399;
+}
+#btn-campana.activa .punto-activo { display: block; }
+
+main { padding: 16px; }
+.oculto { display: none !important; }
+
+/* ── Tabs ── */
+nav.tabs {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 40; max-width: 560px; margin: 0 auto;
+    display: flex; background: rgba(10,5,16,0.92); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border); padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
+    overflow-x: auto;
+}
+nav.tabs button {
+    flex: 1; min-width: 0; background: none; border: none; color: var(--text-dim); font-size: 9.5px;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 1px; border-radius: 12px;
+    white-space: nowrap;
+}
+nav.tabs button .icono { font-size: 17px; }
+nav.tabs button.activo { color: var(--text); }
+nav.tabs button.activo .icono { filter: drop-shadow(0 0 6px rgba(214,36,159,0.6)); }
+nav.tabs button .gema {
+    width: 5px; height: 5px; margin-top: -1px; clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%);
+    background: transparent;
+}
+nav.tabs button.activo .gema { background: var(--gradient); }
+
+/* ── Cards & lists ── */
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--text-dim); font-weight: 600; margin-bottom: 8px; }
+.seccion-titulo { display: flex; align-items: center; gap: 8px; margin: 22px 0 12px; }
+.seccion-titulo:first-child { margin-top: 0; }
+.seccion-titulo h2 { font-size: 15px; font-weight: 700; }
+.seccion-titulo .contador {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--card); border: 1px solid var(--border);
+}
+
+.card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px; margin-bottom: 10px; position: relative; overflow: hidden;
+}
+.card.urgente { border-color: rgba(255,77,109,0.45); background: linear-gradient(135deg, rgba(255,77,109,0.10), rgba(255,77,109,0.03)); }
+.card.aviso   { border-color: rgba(255,230,0,0.35); background: linear-gradient(135deg, rgba(255,230,0,0.07), rgba(139,47,201,0.05)); }
+
+.fila-alumno { display: flex; align-items: center; gap: 12px; }
+.gema-avatar {
+    width: 42px; height: 42px; flex-shrink: 0; clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%);
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #fff;
+}
+.info-alumno { flex: 1; min-width: 0; }
+.info-alumno .nombre { font-weight: 700; font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.info-alumno .genero { font-size: 11.5px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.badge-estado { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.badge-estado.vencido  { background: rgba(255,77,109,0.18); color: #ff8fa3; }
+.badge-estado.porvencer{ background: rgba(255,230,0,0.15); color: #ffe600; }
+.badge-estado.aldia     { background: rgba(52,211,153,0.15); color: #34d399; }
+
+.detalle-fila { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--text-dim); }
+.detalle-fila strong { color: var(--text); font-weight: 600; }
+
+.btn-whatsapp {
+    margin-top: 10px; width: 100%; padding: 10px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 700; font-size: 12.5px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+.vacio { text-align: center; padding: 30px 10px; color: var(--text-dim); }
+.vacio .icono { font-size: 30px; margin-bottom: 8px; }
+.vacio p { font-size: 12.5px; margin: 4px 0 0; }
+
+/* ── Buttons ── */
+.btn-principal {
+    width: 100%; padding: 13px; border-radius: 13px; border: none; background: var(--gradient);
+    color: #fff; font-weight: 700; font-size: 13.5px; box-shadow: 0 8px 20px rgba(214,36,159,0.22);
+}
+.btn-secundario {
+    width: 100%; padding: 12px; border-radius: 13px; border: 1px solid var(--border); background: var(--card);
+    color: var(--text); font-weight: 600; font-size: 13px;
+}
+.btn-fab {
+    position: fixed; right: 18px; bottom: 88px; z-index: 41; width: 54px; height: 54px; border-radius: 50%;
+    border: none; background: var(--gradient); color: #fff; font-size: 24px; box-shadow: 0 10px 26px rgba(214,36,159,0.35);
+    max-width: 560px;
+}
+
+/* ── Forms ── */
+.campo { margin-bottom: 14px; }
+.campo label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; font-weight: 600; }
+.campo input, .campo select, .campo textarea {
+    width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
+    border-radius: 11px; padding: 11px 12px; font-size: 14px;
+}
+.campo textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+.campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--magenta); }
+.campo small { display: block; margin-top: 5px; font-size: 10.5px; color: var(--text-dim); }
+.fila-2 { display: flex; gap: 12px; }
+.fila-2 .campo { flex: 1; min-width: 0; }
+.fila-2 .campo input, .fila-2 .campo select { min-width: 0; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+    padding: 7px 13px; border-radius: 999px; border: 1px solid var(--border); background: var(--card);
+    font-size: 12px; color: var(--text-dim); font-weight: 600;
+}
+.chip.activo { background: var(--gradient); color: #fff; border-color: transparent; }
+
+.search-wrap { position: relative; margin-bottom: 14px; }
+.search-wrap input { padding-left: 36px; }
+.search-wrap .icono { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 14px; }
+
+/* ── Modal ── */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); z-index: 80;
+    display: flex; align-items: flex-end; justify-content: center;
+}
+.modal-overlay.oculto { display: none; }
+.modal-sheet {
+    width: 100%; max-width: 560px; background: var(--bg2); border: 1px solid var(--border);
+    border-bottom: none; border-radius: 22px 22px 0 0; padding: 18px 18px calc(20px + env(safe-area-inset-bottom));
+    max-height: 88vh; overflow-y: auto; animation: subir 0.25s ease;
+}
+@keyframes subir { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.modal-header h2 { font-size: 16.5px; font-weight: 700; }
+.modal-cerrar { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text-dim); font-size: 14px; }
+
+/* ── Toast ── */
+#toast {
+    position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 999;
+    background: rgba(20,14,26,0.97); border-left: 3px solid var(--purple); color: #fff; padding: 10px 16px;
+    border-radius: 10px; font-size: 12.5px; opacity: 0; transition: opacity 0.3s; max-width: 88vw; box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+/* ── Bienvenida en tab Vencimientos ── */
+.resumen-hero {
+    background: var(--gradient-soft); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 18px;
+}
+.resumen-hero .script { font-size: 21px; color: #fff; }
+.resumen-hero .stats { display: flex; gap: 10px; margin-top: 12px; }
+.resumen-hero .stat { flex: 1; min-width: 0; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; text-align: center; }
+.resumen-hero .stat .num { font-family: 'Poppins', sans-serif; font-size: 20px; font-weight: 800; }
+.resumen-hero .stat .lbl { font-size: 9.5px; color: var(--text-dim); margin-top: 2px; }
+
+/* ── Finanzas ── */
+.fin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.fin-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px; min-width: 0; }
+.fin-card .lbl { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; margin-bottom: 4px; }
+.fin-card .val { font-family: 'Poppins', sans-serif; font-size: 17px; font-weight: 800; overflow-wrap: break-word; }
+.fin-card.ingreso .val { color: #34d399; }
+.fin-card.egreso .val { color: #ff8fa3; }
+.fin-card.balance .val { color: var(--yellow); }
+.fila-egreso { display: flex; align-items: center; gap: 10px; }
+.fila-egreso .info-egreso { flex: 1; min-width: 0; }
+.fila-egreso .info-egreso .concepto { font-weight: 700; font-size: 14px; }
+.fila-egreso .info-egreso .desc { font-size: 11.5px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fila-egreso .monto-egreso { font-weight: 800; font-size: 14px; color: #ff8fa3; white-space: nowrap; }
+.fila-egreso .btn-borrar { background: none; border: none; color: var(--text-dim); font-size: 15px; padding: 4px 6px; flex-shrink: 0; }
+
+/* ── Horarios ── */
+.dia-titulo { font-size: 13.5px; font-weight: 800; color: var(--text); margin: 18px 0 8px; letter-spacing: 0.3px; }
+.dia-titulo:first-child { margin-top: 0; }
+.fila-horario { display: flex; align-items: center; gap: 10px; }
+.fila-horario .hora-box {
+    flex-shrink: 0; text-align: center; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 6px 8px; min-width: 58px;
+}
+.fila-horario .hora-box .h1 { font-size: 12px; font-weight: 700; color: var(--text); }
+.fila-horario .hora-box .h2 { font-size: 9.5px; color: var(--text-dim); }
+.fila-horario .info-horario { flex: 1; min-width: 0; }
+.fila-horario .info-horario .clase { font-weight: 700; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fila-horario .info-horario .meta { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+@media (min-width: 480px) {
+    #splash img { width: 240px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ SPLASH ══════════ -->
+<div id="splash">
+    <img src="./logo.png" alt="Elite Dance Company">
+    <div class="tagline script">preparando el estudio...</div>
+    <div class="cargando" id="splash-cargando"><span class="punto"></span><span class="punto"></span><span class="punto"></span></div>
+    <button id="splash-entrar" onclick="entrarApp()">Entrar ✨</button>
+</div>
+
+<!-- ══════════ APP ══════════ -->
+<div id="app">
+    <header class="topbar">
+        <img src="./logo.png" alt="">
+        <div class="titulo">
+            <h1>ELITE DANCE COMPANY</h1>
+            <span>Control de alumnas y mensualidades</span>
+        </div>
+        <button id="btn-campana" onclick="toggleNotificaciones()" title="Notificaciones">
+            <span>🔔</span><span class="punto-activo"></span>
+        </button>
+    </header>
+
+    <main>
+        <!-- ── TAB: VENCIMIENTOS ── -->
+        <section id="tab-vencimientos">
+            <div class="resumen-hero">
+                <div class="script">¡Hola, Elite! 💎</div>
+                <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Así está el estado de las mensualidades hoy.</div>
+                <div class="stats">
+                    <div class="stat"><div class="num" id="stat-vencidos" style="color:#ff8fa3;">–</div><div class="lbl">VENCIDAS</div></div>
+                    <div class="stat"><div class="num" id="stat-porvencer" style="color:#ffe600;">–</div><div class="lbl">POR VENCER</div></div>
+                    <div class="stat"><div class="num" id="stat-aldia" style="color:#34d399;">–</div><div class="lbl">AL DÍA</div></div>
+                </div>
+            </div>
+
+            <div id="lista-vencidos-wrap">
+                <div class="seccion-titulo">
+                    <h2>🚨 Vencidas</h2>
+                    <span class="contador" id="contador-vencidos">0</span>
+                </div>
+                <div id="lista-vencidos"></div>
+            </div>
+
+            <div id="lista-porvencer-wrap">
+                <div class="seccion-titulo">
+                    <h2>⏳ Por vencer (5 días o menos)</h2>
+                    <span class="contador" id="contador-porvencer">0</span>
+                </div>
+                <div id="lista-porvencer"></div>
+            </div>
+        </section>
+
+        <!-- ── TAB: ALUMNAS ── -->
+        <section id="tab-alumnos" class="oculto">
+            <div class="search-wrap">
+                <span class="icono">🔍</span>
+                <input type="text" id="buscar-alumno" placeholder="Buscar alumna..." oninput="renderListaAlumnos()">
+            </div>
+            <div id="lista-alumnos"></div>
+        </section>
+
+        <!-- ── TAB: REGISTRAR PAGO ── -->
+        <section id="tab-pago" class="oculto">
+            <div class="campo">
+                <label>Alumna</label>
+                <select id="pago-alumno-select" onchange="alSeleccionarAlumnoPago()"></select>
+            </div>
+            <div id="pago-info-previo" class="card oculto" style="font-size:12.5px;color:var(--text-dim);"></div>
+
+            <div class="campo">
+                <label>Forma de pago</label>
+                <div class="chips">
+                    <button type="button" class="chip activo" id="chip-pago-bs" onclick="cambiarMonedaPago('Bs')">💱 Bs (con tasa)</button>
+                    <button type="button" class="chip" id="chip-pago-usd" onclick="cambiarMonedaPago('USD')">💵 Efectivo USD</button>
+                </div>
+            </div>
+
+            <div class="fila-2">
+                <div class="campo">
+                    <label>Fecha de pago</label>
+                    <input type="date" id="pago-fecha" inputmode="numeric">
+                </div>
+                <div class="campo" id="campo-pago-tasa">
+                    <label>Tasa Bs/USD</label>
+                    <input type="number" inputmode="decimal" id="pago-tasa" placeholder="ej. 700" step="any" oninput="calcularPagoBs()">
+                </div>
+            </div>
+            <div class="fila-2">
+                <div class="campo">
+                    <label>Monto (USD)</label>
+                    <input type="number" inputmode="decimal" id="pago-monto-usd" step="any" oninput="calcularPagoBs()">
+                </div>
+                <div class="campo" id="campo-pago-bs">
+                    <label>Equivale en Bs</label>
+                    <input type="text" id="pago-monto-bs" disabled style="opacity:0.75;">
+                </div>
+            </div>
+            <button class="btn-principal" onclick="guardarPago()">💳 Registrar pago</button>
+        </section>
+
+        <!-- ── TAB: FINANZAS ── -->
+        <section id="tab-finanzas" class="oculto">
+            <div class="fin-grid">
+                <div class="fin-card ingreso"><div class="lbl">Ingresos Bs</div><div class="val" id="fin-ingreso-bs">–</div></div>
+                <div class="fin-card ingreso"><div class="lbl">Ingresos USD</div><div class="val" id="fin-ingreso-usd">–</div></div>
+                <div class="fin-card egreso"><div class="lbl">Egresos Bs</div><div class="val" id="fin-egreso-bs">–</div></div>
+                <div class="fin-card egreso"><div class="lbl">Egresos USD</div><div class="val" id="fin-egreso-usd">–</div></div>
+                <div class="fin-card balance"><div class="lbl">Balance Bs</div><div class="val" id="fin-balance-bs">–</div></div>
+                <div class="fin-card balance"><div class="lbl">Balance USD</div><div class="val" id="fin-balance-usd">–</div></div>
+            </div>
+            <div style="font-size:11px;color:var(--text-dim);margin:-10px 0 16px;">📅 Mostrando el mes actual.</div>
+
+            <div class="seccion-titulo">
+                <h2>📤 Egresos del mes</h2>
+                <span class="contador" id="contador-egresos">0</span>
+            </div>
+            <div id="lista-egresos"></div>
+        </section>
+
+        <!-- ── TAB: HORARIOS ── -->
+        <section id="tab-horarios" class="oculto">
+            <div id="lista-horarios"></div>
+        </section>
+    </main>
+
+    <button class="btn-fab oculto" id="btn-fab-alumno" onclick="abrirModalAlumno()">+</button>
+    <button class="btn-fab oculto" id="btn-fab-egreso" onclick="abrirModalEgreso()">+</button>
+    <button class="btn-fab oculto" id="btn-fab-horario" onclick="abrirModalHorario()">+</button>
+
+    <nav class="tabs">
+        <button class="tab-btn activo" data-tab="vencimientos" onclick="cambiarTab('vencimientos')">
+            <span class="icono">⏰</span><span>Vencim.</span><span class="gema"></span>
+        </button>
+        <button class="tab-btn" data-tab="alumnos" onclick="cambiarTab('alumnos')">
+            <span class="icono">💃</span><span>Alumnas</span><span class="gema"></span>
+        </button>
+        <button class="tab-btn" data-tab="pago" onclick="cambiarTab('pago')">
+            <span class="icono">💳</span><span>Pago</span><span class="gema"></span>
+        </button>
+        <button class="tab-btn" data-tab="finanzas" onclick="cambiarTab('finanzas')">
+            <span class="icono">📊</span><span>Finanzas</span><span class="gema"></span>
+        </button>
+        <button class="tab-btn" data-tab="horarios" onclick="cambiarTab('horarios')">
+            <span class="icono">🗓️</span><span>Horarios</span><span class="gema"></span>
+        </button>
+    </nav>
+</div>
+
+<!-- ══════════ MODAL: NUEVO EGRESO ══════════ -->
+<div class="modal-overlay oculto" id="modal-egreso">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <h2>📤 Nuevo egreso</h2>
+            <button class="modal-cerrar" onclick="cerrarModal('modal-egreso')">✕</button>
+        </div>
+        <div class="campo">
+            <label>Concepto</label>
+            <div class="chips" id="chips-concepto-egreso"></div>
+        </div>
+        <div class="campo">
+            <label>Descripción (opcional)</label>
+            <input type="text" id="egreso-descripcion" placeholder="ej. Quincena de julio">
+        </div>
+        <div class="fila-2">
+            <div class="campo">
+                <label>Monto</label>
+                <input type="number" inputmode="decimal" id="egreso-monto" step="any" placeholder="ej. 50">
+            </div>
+            <div class="campo">
+                <label>Moneda</label>
+                <select id="egreso-moneda">
+                    <option value="Bs">Bs</option>
+                    <option value="USD">USD</option>
+                </select>
+            </div>
+        </div>
+        <div class="campo">
+            <label>Fecha</label>
+            <input type="date" id="egreso-fecha">
+        </div>
+        <button class="btn-principal" onclick="guardarEgreso()">Guardar egreso</button>
+    </div>
+</div>
+
+<!-- ══════════ MODAL: NUEVA CLASE (HORARIO) ══════════ -->
+<div class="modal-overlay oculto" id="modal-horario">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <h2 id="modal-horario-titulo">🗓️ Nueva clase</h2>
+            <button class="modal-cerrar" onclick="cerrarModal('modal-horario')">✕</button>
+        </div>
+        <input type="hidden" id="horario-id">
+        <div class="campo">
+            <label>Día</label>
+            <select id="horario-dia">
+                <option>Lunes</option><option>Martes</option><option>Miércoles</option>
+                <option>Jueves</option><option>Viernes</option><option>Sábado</option><option>Domingo</option>
+            </select>
+        </div>
+        <div class="fila-2">
+            <div class="campo">
+                <label>Hora inicio</label>
+                <input type="time" id="horario-inicio">
+            </div>
+            <div class="campo">
+                <label>Hora fin</label>
+                <input type="time" id="horario-fin">
+            </div>
+        </div>
+        <div class="campo">
+            <label>Género de baile / clase</label>
+            <input type="text" id="horario-genero" placeholder="ej. K-pop">
+        </div>
+        <div class="fila-2">
+            <div class="campo">
+                <label>Instructor (opcional)</label>
+                <input type="text" id="horario-instructor">
+            </div>
+            <div class="campo">
+                <label>Salón (opcional)</label>
+                <input type="text" id="horario-salon">
+            </div>
+        </div>
+        <button class="btn-principal" onclick="guardarHorario()">Guardar clase</button>
+        <div id="modal-horario-extra"></div>
+    </div>
+</div>
+
+<!-- ══════════ MODAL: NUEVA / EDITAR ALUMNA ══════════ -->
+<div class="modal-overlay oculto" id="modal-alumno">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <h2 id="modal-alumno-titulo">Nueva alumna</h2>
+            <button class="modal-cerrar" onclick="cerrarModal('modal-alumno')">✕</button>
+        </div>
+        <input type="hidden" id="alumno-id">
+        <div class="campo">
+            <label>Nombre completo</label>
+            <input type="text" id="alumno-nombre" placeholder="ej. Paula Coll">
+        </div>
+        <div class="campo">
+            <label>Género(s) de baile</label>
+            <div class="chips" id="chips-genero"></div>
+            <input type="text" id="alumno-genero-custom" placeholder="Otro (opcional, separa con /)" style="margin-top:8px;">
+        </div>
+        <div class="fila-2">
+            <div class="campo">
+                <label>Fecha de ingreso</label>
+                <input type="date" id="alumno-fecha-ingreso">
+            </div>
+            <div class="campo">
+                <label>Mensualidad (USD)</label>
+                <input type="number" inputmode="decimal" id="alumno-monto-usd" placeholder="ej. 20" step="any">
+            </div>
+        </div>
+        <div class="campo">
+            <label>Representante (opcional)</label>
+            <input type="text" id="alumno-representante-nombre" placeholder="Nombre del representante">
+        </div>
+        <div class="campo">
+            <label>WhatsApp del representante</label>
+            <input type="tel" inputmode="tel" id="alumno-representante-telefono" placeholder="ej. 584121234567">
+            <small>Con código de país, sin espacios ni "+". Así se puede armar el enlace de WhatsApp directo.</small>
+        </div>
+        <button class="btn-principal" onclick="guardarAlumno()">Guardar</button>
+        <div id="modal-alumno-extra"></div>
+    </div>
+</div>
+
+<!-- ══════════ MODAL: COMPARTIR WHATSAPP ══════════ -->
+<div class="modal-overlay oculto" id="modal-whatsapp">
+    <div class="modal-sheet">
+        <div class="modal-header">
+            <h2>💌 Mensaje para enviar</h2>
+            <button class="modal-cerrar" onclick="cerrarModal('modal-whatsapp')">✕</button>
+        </div>
+        <div class="campo">
+            <textarea id="whatsapp-texto" rows="10"></textarea>
+            <small>Puedes editar el mensaje antes de enviarlo.</small>
+        </div>
+        <button class="btn-principal btn-whatsapp" id="btn-abrir-whatsapp" style="margin-top:0;">
+            <span>📲</span> Abrir WhatsApp
+        </button>
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════ CONFIG ══════════════════════
+const VAPID_PUBLIC_KEY = 'BPcIO-reLNI22V_B-n6CgyM2d7_Ete1GbCi8SFbpk1PnKeR0Uhsm-eTCx9UBNSo3sQgd8NU88w7XYsDKkjI0zms'; // ver README para generarla
+const GENEROS_PRESET = ['Compañía', 'K-pop', 'Urbano', 'Árabe', 'Flamenco', 'Heels', 'Nacionalista', 'Ritmos Latinos'];
+const GRADIENTES_GEMA = [
+    'linear-gradient(135deg,#8b2fc9,#d6249f)',
+    'linear-gradient(135deg,#d6249f,#f2994a)',
+    'linear-gradient(135deg,#f2994a,#ffe600)',
+    'linear-gradient(135deg,#8b2fc9,#ec2c6d)',
+    'linear-gradient(135deg,#ec2c6d,#f2994a)',
+];
+
+let _alumnos = [];
+let _generosSeleccionados = [];
+let _alumnoWhatsappActual = null;
+let _ultimaTasaUsada = null;
+let _monedaPago = 'Bs';
+let _egresos = [];
+let _horarios = [];
+const CONCEPTOS_EGRESO = ['Personal', 'Servicios', 'Alquiler', 'Otro'];
+let _conceptoEgresoSeleccionado = 'Personal';
+
+// ══════════════════════ UTILIDADES ══════════════════════
+async function fetchJSON(url, options) {
+    const resp = await fetch(url, options);
+    const texto = await resp.text();
+    let json;
+    try { json = JSON.parse(texto); }
+    catch { throw new Error(`Respuesta no-JSON (status ${resp.status}): ${texto.slice(0, 200)}`); }
+    if (!resp.ok) throw new Error(json.error || `Error ${resp.status} del servidor`);
+    return json;
+}
+function toast(msg, tipo = 'info') {
+    const t = document.getElementById('toast');
+    const colores = { success: '#34d399', error: '#ff6b6b', warning: '#ffe600', info: '#8b2fc9' };
+    t.style.borderLeftColor = colores[tipo] || colores.info;
+    t.innerText = msg;
+    t.style.opacity = '1';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3200);
+}
+
+function hoyISO() { return new Date().toISOString().slice(0, 10); }
+
+function sumarUnMes(fechaStr) {
+    const [y, m, d] = fechaStr.split('-').map(Number);
+    const fecha = new Date(Date.UTC(y, m - 1, d));
+    const diaOriginal = fecha.getUTCDate();
+    fecha.setUTCMonth(fecha.getUTCMonth() + 1);
+    if (fecha.getUTCDate() !== diaOriginal) fecha.setUTCDate(0);
+    return fecha.toISOString().slice(0, 10);
+}
+function diasEntre(desdeStr, hastaStr) {
+    const a = new Date(desdeStr + 'T00:00:00Z');
+    const b = new Date(hastaStr + 'T00:00:00Z');
+    return Math.round((b - a) / (24 * 3600 * 1000));
+}
+function formatoFechaBonita(fechaStr) {
+    if (!fechaStr) return '—';
+    const d = new Date(fechaStr + 'T12:00:00Z');
+    return d.toLocaleDateString('es-VE', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'America/Caracas' });
+}
+function iniciales(nombre) {
+    return nombre.split(' ').filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('');
+}
+function gradienteGema(nombre) {
+    let hash = 0;
+    for (const c of nombre) hash = (hash * 31 + c.charCodeAt(0)) % GRADIENTES_GEMA.length;
+    return GRADIENTES_GEMA[hash];
+}
+
+function calcularEstado(alumno) {
+    const base = alumno.fecha_ultimo_pago || alumno.fecha_ingreso;
+    const proximoVencimiento = sumarUnMes(base);
+    const diasFaltantes = diasEntre(hoyISO(), proximoVencimiento);
+    let estado = 'aldia';
+    if (diasFaltantes <= 0) estado = 'vencido';
+    else if (diasFaltantes <= 5) estado = 'porvencer';
+    return { proximoVencimiento, diasFaltantes, estado };
+}
+
+// ══════════════════════ SPLASH ══════════════════════
+function entrarApp() {
+    document.getElementById('splash').classList.add('oculto');
+    document.getElementById('app').classList.add('visible');
+    cargarTodo();
+}
+
+// ══════════════════════ TABS ══════════════════════
+function cambiarTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('activo', b.dataset.tab === tab));
+    document.getElementById('tab-vencimientos').classList.toggle('oculto', tab !== 'vencimientos');
+    document.getElementById('tab-alumnos').classList.toggle('oculto', tab !== 'alumnos');
+    document.getElementById('tab-pago').classList.toggle('oculto', tab !== 'pago');
+    document.getElementById('tab-finanzas').classList.toggle('oculto', tab !== 'finanzas');
+    document.getElementById('tab-horarios').classList.toggle('oculto', tab !== 'horarios');
+    document.getElementById('btn-fab-alumno').classList.toggle('oculto', tab !== 'alumnos');
+    document.getElementById('btn-fab-egreso').classList.toggle('oculto', tab !== 'finanzas');
+    document.getElementById('btn-fab-horario').classList.toggle('oculto', tab !== 'horarios');
+    if (tab === 'pago') poblarSelectAlumnosPago();
+    if (tab === 'finanzas') cargarFinanzas();
+    if (tab === 'horarios') cargarHorarios();
+}
+
+// ══════════════════════ CARGA DE DATOS ══════════════════════
+async function cargarTodo() {
+    try {
+        const resp = await fetch('/alumnos');
+        const texto = await resp.text();
+        let json;
+        try { json = JSON.parse(texto); }
+        catch { throw new Error(`Respuesta no-JSON (status ${resp.status}): ${texto.slice(0, 200)}`); }
+        if (!resp.ok) throw new Error(json.error || `Error ${resp.status} del servidor`);
+        _alumnos = json.data || [];
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ ${err.message || 'No se pudo conectar con el servidor.'}`, 'error');
+        _alumnos = [];
+    }
+    renderVencimientos();
+    renderListaAlumnos();
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('tab') === 'vencimientos') cambiarTab('vencimientos');
+}
+
+// ══════════════════════ TAB VENCIMIENTOS ══════════════════════
+function renderVencimientos() {
+    const vencidos = [], porVencer = [], alDia = [];
+    for (const a of _alumnos) {
+        const { proximoVencimiento, diasFaltantes, estado } = calcularEstado(a);
+        const enriquecido = { ...a, proximoVencimiento, diasFaltantes };
+        if (estado === 'vencido') vencidos.push(enriquecido);
+        else if (estado === 'porvencer') porVencer.push(enriquecido);
+        else alDia.push(enriquecido);
+    }
+    vencidos.sort((x, y) => x.diasFaltantes - y.diasFaltantes);
+    porVencer.sort((x, y) => x.diasFaltantes - y.diasFaltantes);
+
+    document.getElementById('stat-vencidos').innerText = vencidos.length;
+    document.getElementById('stat-porvencer').innerText = porVencer.length;
+    document.getElementById('stat-aldia').innerText = alDia.length;
+    document.getElementById('contador-vencidos').innerText = vencidos.length;
+    document.getElementById('contador-porvencer').innerText = porVencer.length;
+
+    document.getElementById('lista-vencidos-wrap').classList.toggle('oculto', vencidos.length === 0);
+    document.getElementById('lista-porvencer-wrap').classList.toggle('oculto', porVencer.length === 0);
+
+    document.getElementById('lista-vencidos').innerHTML = vencidos.map(a => tarjetaVencimiento(a, 'urgente')).join('')
+        || '';
+    document.getElementById('lista-porvencer').innerHTML = porVencer.map(a => tarjetaVencimiento(a, 'aviso')).join('')
+        || '';
+
+    if (vencidos.length === 0 && porVencer.length === 0) {
+        document.getElementById('lista-vencidos-wrap').classList.remove('oculto');
+        document.getElementById('lista-vencidos').innerHTML = `
+            <div class="vacio"><div class="icono">💎</div>
+            <h3 style="font-size:14px;">Todo en orden</h3>
+            <p>Ninguna alumna tiene la mensualidad vencida ni por vencer en los próximos 5 días.</p></div>`;
+    }
+}
+
+function tarjetaVencimiento(a, tipoCard) {
+    const textoTiempo = a.diasFaltantes <= 0
+        ? `Vencida hace ${Math.abs(a.diasFaltantes)} día(s)`
+        : `Faltan ${a.diasFaltantes} día(s)`;
+    return `
+    <div class="card ${tipoCard}">
+        <div class="fila-alumno">
+            <div class="gema-avatar" style="background:${gradienteGema(a.nombre)};">${iniciales(a.nombre)}</div>
+            <div class="info-alumno">
+                <div class="nombre">${a.nombre}</div>
+                <div class="genero">${a.genero_baile}</div>
+            </div>
+            <span class="badge-estado ${a.diasFaltantes <= 0 ? 'vencido' : 'porvencer'}">${textoTiempo}</span>
+        </div>
+        <div class="detalle-fila">
+            <span>Última mensualidad: <strong>${formatoFechaBonita(a.fecha_ultimo_pago || a.fecha_ingreso)}</strong></span>
+            <span>Vence: <strong>${formatoFechaBonita(a.proximoVencimiento)}</strong></span>
+        </div>
+        <button class="btn-whatsapp" onclick='abrirWhatsapp(${JSON.stringify(a).replace(/'/g, "&#39;")})'>
+            <span>💬</span> Compartir por WhatsApp
+        </button>
+    </div>`;
+}
+
+// ══════════════════════ MENSAJE WHATSAPP ══════════════════════
+function generarMensajeWhatsapp(a) {
+    const urgente = a.diasFaltantes <= 0;
+    const fechaUltimo = formatoFechaBonita(a.fecha_ultimo_pago || a.fecha_ingreso);
+    const fechaVence  = formatoFechaBonita(a.proximoVencimiento);
+
+    if (urgente) {
+        return `¡Hola! 🌸
+
+Le escribimos con cariño desde *Elite Dance Company* 💎 para contarle que la mensualidad de *${a.nombre}* (${a.genero_baile}) ya alcanzó su fecha límite de pago 🗓️
+
+🩰 Última mensualidad pagada: ${fechaUltimo}
+📌 Fecha límite: ${fechaVence}
+
+Le agradecemos muchísimo ponerse al día a la brevedad posible, para que ${a.nombre} pueda seguir disfrutando de sus clases sin ningún inconveniente 💜
+
+Quedamos atentas a su respuesta, ¡muchas gracias por su comprensión! 🤍✨`;
+    }
+
+    return `¡Hola! 🌸✨
+
+Este es un cariñoso recordatorio de parte de *Elite Dance Company* 💃💎
+
+Le escribimos para contarle que la mensualidad de *${a.nombre}* (${a.genero_baile}) está próxima a vencer 📅
+
+🩰 Última mensualidad pagada: ${fechaUltimo}
+⏳ Quedan *${a.diasFaltantes} día(s)* para la fecha límite de pago (${fechaVence})
+
+Agradecemos muchísimo su puntualidad y compromiso con la academia 💜 Cualquier duda, aquí estamos para ayudarle 🤍
+
+¡Que tenga un día hermoso! ✨💃`;
+}
+
+function abrirWhatsapp(a) {
+    _alumnoWhatsappActual = a;
+    document.getElementById('whatsapp-texto').value = generarMensajeWhatsapp(a);
+    document.getElementById('modal-whatsapp').classList.remove('oculto');
+}
+document.getElementById('btn-abrir-whatsapp').addEventListener('click', () => {
+    const texto = encodeURIComponent(document.getElementById('whatsapp-texto').value);
+    const telefono = _alumnoWhatsappActual?.representante_telefono;
+    const url = telefono ? `https://wa.me/${telefono}?text=${texto}` : `https://wa.me/?text=${texto}`;
+    window.open(url, '_blank');
+    cerrarModal('modal-whatsapp');
+});
+
+// ══════════════════════ TAB ALUMNAS ══════════════════════
+function renderListaAlumnos() {
+    const q = (document.getElementById('buscar-alumno').value || '').toLowerCase().trim();
+    const lista = _alumnos
+        .filter(a => a.nombre.toLowerCase().includes(q) || a.genero_baile.toLowerCase().includes(q))
+        .sort((x, y) => x.nombre.localeCompare(y.nombre));
+
+    if (lista.length === 0) {
+        document.getElementById('lista-alumnos').innerHTML = `
+            <div class="vacio"><div class="icono">💃</div>
+            <h3 style="font-size:14px;">${_alumnos.length === 0 ? 'Aún no hay alumnas inscritas' : 'Sin resultados'}</h3>
+            <p>${_alumnos.length === 0 ? 'Toca el botón + para inscribir a la primera.' : 'Prueba con otro nombre o género.'}</p></div>`;
+        return;
+    }
+
+    document.getElementById('lista-alumnos').innerHTML = lista.map(a => {
+        const { estado, diasFaltantes } = calcularEstado(a);
+        const etiqueta = estado === 'vencido' ? `Vencida ${Math.abs(diasFaltantes)}d` : estado === 'porvencer' ? `${diasFaltantes}d restantes` : 'Al día';
+        return `
+        <div class="card" style="cursor:pointer;" onclick="abrirModalAlumno('${a.id}')">
+            <div class="fila-alumno">
+                <div class="gema-avatar" style="background:${gradienteGema(a.nombre)};">${iniciales(a.nombre)}</div>
+                <div class="info-alumno">
+                    <div class="nombre">${a.nombre}</div>
+                    <div class="genero">${a.genero_baile}</div>
+                </div>
+                <span class="badge-estado ${estado === 'vencido' ? 'vencido' : estado === 'porvencer' ? 'porvencer' : 'aldia'}">${etiqueta}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ══════════════════════ MODAL ALUMNA (crear/editar) ══════════════════════
+function renderChipsGenero() {
+    document.getElementById('chips-genero').innerHTML = GENEROS_PRESET.map(g => `
+        <button type="button" class="chip ${_generosSeleccionados.includes(g) ? 'activo' : ''}" onclick="toggleGenero('${g}')">${g}</button>
+    `).join('');
+}
+function toggleGenero(g) {
+    const i = _generosSeleccionados.indexOf(g);
+    if (i >= 0) _generosSeleccionados.splice(i, 1); else _generosSeleccionados.push(g);
+    renderChipsGenero();
+}
+
+function abrirModalAlumno(id) {
+    const alumno = id ? _alumnos.find(a => a.id === id) : null;
+    document.getElementById('alumno-id').value = alumno?.id || '';
+    document.getElementById('modal-alumno-titulo').innerText = alumno ? 'Editar alumna' : 'Nueva alumna';
+    document.getElementById('alumno-nombre').value = alumno?.nombre || '';
+    document.getElementById('alumno-fecha-ingreso').value = alumno?.fecha_ingreso || hoyISO();
+    document.getElementById('alumno-monto-usd').value = alumno?.monto_mensual_usd || '';
+    document.getElementById('alumno-representante-nombre').value = alumno?.representante_nombre || '';
+    document.getElementById('alumno-representante-telefono').value = alumno?.representante_telefono || '';
+
+    _generosSeleccionados = [];
+    document.getElementById('alumno-genero-custom').value = '';
+    if (alumno?.genero_baile) {
+        const partes = alumno.genero_baile.split('/').map(s => s.trim());
+        const extra = [];
+        partes.forEach(p => { if (GENEROS_PRESET.includes(p)) _generosSeleccionados.push(p); else extra.push(p); });
+        document.getElementById('alumno-genero-custom').value = extra.join(' / ');
+    }
+    renderChipsGenero();
+
+    const extra = document.getElementById('modal-alumno-extra');
+    extra.innerHTML = alumno ? `
+        <button class="btn-secundario" style="margin-top:10px;color:var(--danger);" onclick="darDeBaja('${alumno.id}')">Dar de baja</button>
+    ` : '';
+
+    document.getElementById('modal-alumno').classList.remove('oculto');
+}
+
+async function guardarAlumno() {
+    const id = document.getElementById('alumno-id').value;
+    const nombre = document.getElementById('alumno-nombre').value.trim();
+    const custom = document.getElementById('alumno-genero-custom').value.trim();
+    const generos = [..._generosSeleccionados];
+    if (custom) generos.push(...custom.split('/').map(s => s.trim()).filter(Boolean));
+    const genero_baile = generos.join(' / ');
+    const fecha_ingreso = document.getElementById('alumno-fecha-ingreso').value;
+    const monto_mensual_usd = parseFloat(document.getElementById('alumno-monto-usd').value);
+    const representante_nombre = document.getElementById('alumno-representante-nombre').value.trim();
+    const representante_telefono = document.getElementById('alumno-representante-telefono').value.trim();
+
+    if (!nombre || !genero_baile || !monto_mensual_usd) {
+        toast('⚠️ Completa nombre, género y mensualidad.', 'error');
+        return;
+    }
+
+    const body = { nombre, genero_baile, fecha_ingreso, monto_mensual_usd, representante_nombre, representante_telefono };
+
+    try {
+        const resp = id
+            ? await fetch(`/alumnos?id=${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+            : await fetch('/alumnos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const texto = await resp.text();
+        let json;
+        try { json = JSON.parse(texto); }
+        catch { throw new Error(`Respuesta no-JSON (status ${resp.status}): ${texto.slice(0, 200)}`); }
+        if (!resp.ok) throw new Error(json.error || `Error ${resp.status} del servidor`);
+
+        toast('✅ Alumna guardada.', 'success');
+        cerrarModal('modal-alumno');
+        cargarTodo();
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ No se pudo guardar: ${err.message}`, 'error');
+    }
+}
+
+async function darDeBaja(id) {
+    if (!confirm('¿Dar de baja a esta alumna? Ya no aparecerá en la lista activa.')) return;
+    try {
+        await fetch(`/alumnos?id=${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ activo: false }) });
+        toast('Alumna dada de baja.', 'success');
+        cerrarModal('modal-alumno');
+        cargarTodo();
+    } catch (err) {
+        toast('⚠️ No se pudo procesar.', 'error');
+    }
+}
+
+// ══════════════════════ TAB REGISTRAR PAGO ══════════════════════
+function poblarSelectAlumnosPago() {
+    const sel = document.getElementById('pago-alumno-select');
+    const actual = sel.value;
+    sel.innerHTML = _alumnos.slice().sort((a, b) => a.nombre.localeCompare(b.nombre))
+        .map(a => `<option value="${a.id}">${a.nombre} — ${a.genero_baile}</option>`).join('');
+    if (actual) sel.value = actual;
+    document.getElementById('pago-fecha').value = hoyISO();
+    if (_ultimaTasaUsada) document.getElementById('pago-tasa').value = _ultimaTasaUsada;
+    cambiarMonedaPago('Bs');
+    alSeleccionarAlumnoPago();
+}
+function cambiarMonedaPago(moneda) {
+    _monedaPago = moneda;
+    document.getElementById('chip-pago-bs').classList.toggle('activo', moneda === 'Bs');
+    document.getElementById('chip-pago-usd').classList.toggle('activo', moneda === 'USD');
+    document.getElementById('campo-pago-tasa').classList.toggle('oculto', moneda !== 'Bs');
+    document.getElementById('campo-pago-bs').classList.toggle('oculto', moneda !== 'Bs');
+    calcularPagoBs();
+}
+function alSeleccionarAlumnoPago() {
+    const id = document.getElementById('pago-alumno-select').value;
+    const alumno = _alumnos.find(a => a.id === id);
+    const info = document.getElementById('pago-info-previo');
+    if (!alumno) { info.classList.add('oculto'); return; }
+    const { proximoVencimiento } = calcularEstado(alumno);
+    info.classList.remove('oculto');
+    info.innerHTML = `Última mensualidad: <strong style="color:var(--text);">${formatoFechaBonita(alumno.fecha_ultimo_pago || alumno.fecha_ingreso)}</strong><br>Próximo vencimiento: <strong style="color:var(--text);">${formatoFechaBonita(proximoVencimiento)}</strong>`;
+    document.getElementById('pago-monto-usd').value = alumno.monto_mensual_usd;
+    calcularPagoBs();
+}
+function calcularPagoBs() {
+    const tasa = parseFloat(document.getElementById('pago-tasa').value) || 0;
+    const usd = parseFloat(document.getElementById('pago-monto-usd').value) || 0;
+    document.getElementById('pago-monto-bs').value = tasa && usd ? (tasa * usd).toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' Bs' : '';
+}
+async function guardarPago() {
+    const alumno_id = document.getElementById('pago-alumno-select').value;
+    const fecha_pago = document.getElementById('pago-fecha').value || hoyISO();
+    const tasa = parseFloat(document.getElementById('pago-tasa').value);
+    const monto_usd = parseFloat(document.getElementById('pago-monto-usd').value);
+
+    if (!alumno_id || !monto_usd || (_monedaPago === 'Bs' && !tasa)) {
+        toast(_monedaPago === 'Bs' ? '⚠️ Completa alumna, tasa y monto.' : '⚠️ Completa alumna y monto.', 'error');
+        return;
+    }
+    try {
+        const body = { alumno_id, fecha_pago, monto_usd, moneda_pago: _monedaPago };
+        if (_monedaPago === 'Bs') body.tasa = tasa;
+        await fetchJSON('/pagos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (_monedaPago === 'Bs') _ultimaTasaUsada = tasa;
+        toast('💳 Pago registrado. ¡Mensualidad al día!', 'success');
+        cambiarTab('vencimientos');
+        cargarTodo();
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ No se pudo registrar el pago: ${err.message}`, 'error');
+    }
+}
+
+// ══════════════════════ TAB FINANZAS (ingresos y egresos) ══════════════════════
+function rangoMesActual() {
+    const hoy = new Date();
+    const desde = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-01`;
+    const ultimoDia = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0).getDate();
+    const hasta = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(ultimoDia).padStart(2, '0')}`;
+    return { desde, hasta };
+}
+function formatoMonto(n, sufijo) {
+    return (n || 0).toLocaleString('es-VE', { minimumFractionDigits: 2 }) + ' ' + sufijo;
+}
+async function cargarFinanzas() {
+    const { desde, hasta } = rangoMesActual();
+    let pagos = [];
+    try {
+        const json = await fetchJSON(`/pagos?desde=${desde}&hasta=${hasta}`);
+        pagos = json.data || [];
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ No se pudieron cargar los ingresos: ${err.message}`, 'error');
+    }
+    try {
+        const json = await fetchJSON(`/egresos?desde=${desde}&hasta=${hasta}`);
+        _egresos = json.data || [];
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ No se pudieron cargar los egresos: ${err.message}`, 'error');
+        _egresos = [];
+    }
+
+    const ingresoBs  = pagos.filter(p => p.moneda_pago !== 'USD').reduce((s, p) => s + Number(p.monto_bs || 0), 0);
+    const ingresoUsd = pagos.filter(p => p.moneda_pago === 'USD').reduce((s, p) => s + Number(p.monto_usd || 0), 0);
+    const egresoBs   = _egresos.filter(e => e.moneda === 'Bs').reduce((s, e) => s + Number(e.monto || 0), 0);
+    const egresoUsd  = _egresos.filter(e => e.moneda === 'USD').reduce((s, e) => s + Number(e.monto || 0), 0);
+
+    document.getElementById('fin-ingreso-bs').innerText  = formatoMonto(ingresoBs, 'Bs');
+    document.getElementById('fin-ingreso-usd').innerText = formatoMonto(ingresoUsd, 'USD');
+    document.getElementById('fin-egreso-bs').innerText   = formatoMonto(egresoBs, 'Bs');
+    document.getElementById('fin-egreso-usd').innerText  = formatoMonto(egresoUsd, 'USD');
+    document.getElementById('fin-balance-bs').innerText  = formatoMonto(ingresoBs - egresoBs, 'Bs');
+    document.getElementById('fin-balance-usd').innerText = formatoMonto(ingresoUsd - egresoUsd, 'USD');
+
+    renderListaEgresos();
+}
+function renderListaEgresos() {
+    document.getElementById('contador-egresos').innerText = _egresos.length;
+    if (_egresos.length === 0) {
+        document.getElementById('lista-egresos').innerHTML = `
+            <div class="vacio"><div class="icono">📤</div>
+            <h3 style="font-size:14px;">Sin egresos este mes</h3>
+            <p>Toca el botón + para registrar personal, servicios, alquiler, etc.</p></div>`;
+        return;
+    }
+    document.getElementById('lista-egresos').innerHTML = _egresos.map(e => `
+        <div class="card">
+            <div class="fila-egreso">
+                <div class="info-egreso">
+                    <div class="concepto">${e.concepto}${e.descripcion ? ' · ' + e.descripcion : ''}</div>
+                    <div class="desc">${formatoFechaBonita(e.fecha)}</div>
+                </div>
+                <div class="monto-egreso">-${formatoMonto(e.monto, e.moneda)}</div>
+                <button class="btn-borrar" onclick="borrarEgreso('${e.id}')">🗑️</button>
+            </div>
+        </div>`).join('');
+}
+function renderChipsConceptoEgreso() {
+    document.getElementById('chips-concepto-egreso').innerHTML = CONCEPTOS_EGRESO.map(c => `
+        <button type="button" class="chip ${_conceptoEgresoSeleccionado === c ? 'activo' : ''}" onclick="seleccionarConceptoEgreso('${c}')">${c}</button>
+    `).join('');
+}
+function seleccionarConceptoEgreso(c) { _conceptoEgresoSeleccionado = c; renderChipsConceptoEgreso(); }
+function abrirModalEgreso() {
+    _conceptoEgresoSeleccionado = 'Personal';
+    renderChipsConceptoEgreso();
+    document.getElementById('egreso-descripcion').value = '';
+    document.getElementById('egreso-monto').value = '';
+    document.getElementById('egreso-moneda').value = 'Bs';
+    document.getElementById('egreso-fecha').value = hoyISO();
+    document.getElementById('modal-egreso').classList.remove('oculto');
+}
+async function guardarEgreso() {
+    const concepto = _conceptoEgresoSeleccionado;
+    const descripcion = document.getElementById('egreso-descripcion').value.trim();
+    const monto = parseFloat(document.getElementById('egreso-monto').value);
+    const moneda = document.getElementById('egreso-moneda').value;
+    const fecha = document.getElementById('egreso-fecha').value || hoyISO();
+
+    if (!monto) { toast('⚠️ Ingresa un monto válido.', 'error'); return; }
+    try {
+        await fetchJSON('/egresos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ concepto, descripcion, monto, moneda, fecha }) });
+        toast('✅ Egreso registrado.', 'success');
+        cerrarModal('modal-egreso');
+        cargarFinanzas();
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ No se pudo guardar: ${err.message}`, 'error');
+    }
+}
+async function borrarEgreso(id) {
+    if (!confirm('¿Eliminar este egreso?')) return;
+    try {
+        await fetchJSON(`/egresos?id=${id}`, { method: 'DELETE' });
+        toast('Egreso eliminado.', 'success');
+        cargarFinanzas();
+    } catch (err) {
+        toast(`⚠️ No se pudo eliminar: ${err.message}`, 'error');
+    }
+}
+
+// ══════════════════════ TAB HORARIOS ══════════════════════
+const ORDEN_DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+async function cargarHorarios() {
+    try {
+        const json = await fetchJSON('/horarios');
+        _horarios = json.data || [];
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ No se pudieron cargar los horarios: ${err.message}`, 'error');
+        _horarios = [];
+    }
+    renderHorarios();
+}
+function renderHorarios() {
+    if (_horarios.length === 0) {
+        document.getElementById('lista-horarios').innerHTML = `
+            <div class="vacio"><div class="icono">🗓️</div>
+            <h3 style="font-size:14px;">Aún no hay clases programadas</h3>
+            <p>Toca el botón + para armar el horario semanal.</p></div>`;
+        return;
+    }
+    const porDia = {};
+    for (const h of _horarios) { (porDia[h.dia] = porDia[h.dia] || []).push(h); }
+    for (const dia in porDia) porDia[dia].sort((a, b) => a.hora_inicio.localeCompare(b.hora_inicio));
+
+    document.getElementById('lista-horarios').innerHTML = ORDEN_DIAS
+        .filter(dia => porDia[dia]?.length)
+        .map(dia => `
+            <div class="dia-titulo">${dia}</div>
+            ${porDia[dia].map(h => `
+                <div class="card" style="cursor:pointer;" onclick="abrirModalHorario('${h.id}')">
+                    <div class="fila-horario">
+                        <div class="hora-box"><div class="h1">${h.hora_inicio}</div><div class="h2">${h.hora_fin}</div></div>
+                        <div class="info-horario">
+                            <div class="clase">${h.genero_baile}</div>
+                            <div class="meta">${[h.instructor, h.salon].filter(Boolean).join(' · ') || '—'}</div>
+                        </div>
+                    </div>
+                </div>`).join('')}
+        `).join('');
+}
+function abrirModalHorario(id) {
+    const h = id ? _horarios.find(x => x.id === id) : null;
+    document.getElementById('horario-id').value = h?.id || '';
+    document.getElementById('modal-horario-titulo').innerText = h ? 'Editar clase' : 'Nueva clase';
+    document.getElementById('horario-dia').value = h?.dia || 'Lunes';
+    document.getElementById('horario-inicio').value = h?.hora_inicio || '';
+    document.getElementById('horario-fin').value = h?.hora_fin || '';
+    document.getElementById('horario-genero').value = h?.genero_baile || '';
+    document.getElementById('horario-instructor').value = h?.instructor || '';
+    document.getElementById('horario-salon').value = h?.salon || '';
+
+    const extra = document.getElementById('modal-horario-extra');
+    extra.innerHTML = h ? `<button class="btn-secundario" style="margin-top:10px;color:var(--danger);" onclick="borrarHorario('${h.id}')">Eliminar clase</button>` : '';
+
+    document.getElementById('modal-horario').classList.remove('oculto');
+}
+async function guardarHorario() {
+    const id = document.getElementById('horario-id').value;
+    const dia = document.getElementById('horario-dia').value;
+    const hora_inicio = document.getElementById('horario-inicio').value;
+    const hora_fin = document.getElementById('horario-fin').value;
+    const genero_baile = document.getElementById('horario-genero').value.trim();
+    const instructor = document.getElementById('horario-instructor').value.trim();
+    const salon = document.getElementById('horario-salon').value.trim();
+
+    if (!hora_inicio || !hora_fin || !genero_baile) {
+        toast('⚠️ Completa día, horas y género de baile.', 'error');
+        return;
+    }
+    const body = { dia, hora_inicio, hora_fin, genero_baile, instructor, salon };
+    try {
+        const resp = id
+            ? await fetchJSON(`/horarios?id=${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+            : await fetchJSON('/horarios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        toast('✅ Clase guardada.', 'success');
+        cerrarModal('modal-horario');
+        cargarHorarios();
+    } catch (err) {
+        console.error(err);
+        toast(`⚠️ No se pudo guardar: ${err.message}`, 'error');
+    }
+}
+async function borrarHorario(id) {
+    if (!confirm('¿Eliminar esta clase del horario?')) return;
+    try {
+        await fetchJSON(`/horarios?id=${id}`, { method: 'DELETE' });
+        toast('Clase eliminada.', 'success');
+        cerrarModal('modal-horario');
+        cargarHorarios();
+    } catch (err) {
+        toast(`⚠️ No se pudo eliminar: ${err.message}`, 'error');
+    }
+}
+
+// ══════════════════════ MODALES ══════════════════════
+function cerrarModal(id) { document.getElementById(id).classList.add('oculto'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.add('oculto'); });
+});
+
+// ══════════════════════ NOTIFICACIONES PUSH ══════════════════════
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = atob(base64);
+    return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+}
+
+async function toggleNotificaciones() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        toast('⚠️ Tu navegador no soporta notificaciones push.', 'error');
+        return;
+    }
+    try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+
+        if (sub) {
+            await fetch('/push-subscribe', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: sub.endpoint }) });
+            await sub.unsubscribe();
+            actualizarEstadoCampana(false);
+            toast('🔕 Notificaciones desactivadas.', 'info');
+            return;
+        }
+
+        if (Notification.permission === 'default') await Notification.requestPermission();
+        if (Notification.permission === 'denied') {
+            toast('⚠️ Activa las notificaciones de este sitio en tu navegador.', 'error');
+            return;
+        }
+
+        const nuevaSub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+        await fetch('/push-subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevaSub.toJSON()) });
+        actualizarEstadoCampana(true);
+        toast('🔔 ¡Notificaciones activadas!', 'success');
+    } catch (err) {
+        console.error(err);
+        toast('⚠️ No se pudo activar la notificación.', 'error');
+    }
+}
+function actualizarEstadoCampana(activa) {
+    document.getElementById('btn-campana').classList.toggle('activa', activa);
+}
+async function estadoInicialCampana() {
+    try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        actualizarEstadoCampana(!!sub);
+    } catch (e) { /* noop */ }
+}
+
+// ══════════════════════ INICIO ══════════════════════
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(estadoInicialCampana).catch(console.warn);
+    });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.getElementById('splash-cargando').style.display = 'none';
+        document.getElementById('splash-entrar').style.display = 'inline-block';
+    }, 900);
+});
+document.getElementById('pago-fecha')?.setAttribute('value', hoyISO());
+</script>
+</body>
+</html>
