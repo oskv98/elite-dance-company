@@ -1,21 +1,25 @@
 // ================================================
-// Worker independiente SOLO para disparar el chequeo diario de
-// vencimientos. Cloudflare Pages Functions no soportan Cron Triggers
-// directamente, así que este Worker chiquito llama al endpoint de Pages
-// por HTTP una vez al día.
+// Worker independiente que dispara los chequeos automáticos:
+//  1) Vencimientos de mensualidades: una vez al día, 8:00 a.m. Venezuela.
+//  2) Recordatorios de clase (30 min y 5 min antes): cada 5 minutos.
+// Cloudflare Pages Functions no soportan Cron Triggers directamente, así
+// que este Worker chiquito llama a los endpoints de Pages por HTTP.
 //
 // Se despliega aparte con: npx wrangler deploy
 // (usando el wrangler.toml de esta misma carpeta)
-//
-// IMPORTANTE: cambia la URL de abajo por el dominio real donde despliegues
-// la app (el mismo que uses en Cloudflare Pages).
 // ================================================
+
+const DOMINIO = 'https://elite-dance-company.pages.dev';
 
 export default {
     async scheduled(event, env, ctx) {
-        const url = `https://elitedancecompany.pages.dev/check-vencimientos?secret=${env.CRON_SECRET}`;
+        // event.cron nos dice cuál de las dos expresiones de wrangler.toml disparó esto
+        const esDiario = event.cron === '0 12 * * *';
+
+        const endpoint = esDiario ? 'check-vencimientos' : 'check-horarios';
+        const url = `${DOMINIO}/${endpoint}?secret=${env.CRON_SECRET}`;
         ctx.waitUntil(
-            fetch(url).then(r => r.text()).then(txt => console.log('check-vencimientos:', txt))
+            fetch(url).then(r => r.text()).then(txt => console.log(`${endpoint}:`, txt))
         );
     },
 };

@@ -170,9 +170,10 @@ nav.tabs button.activo .gema { background: var(--gradient); }
     color: var(--text); font-weight: 600; font-size: 13px;
 }
 .btn-fab {
-    position: fixed; right: 18px; bottom: 88px; z-index: 41; width: 54px; height: 54px; border-radius: 50%;
+    position: fixed; right: 18px; z-index: 41; width: 54px; height: 54px; border-radius: 50%;
     border: none; background: var(--gradient); color: #fff; font-size: 24px; box-shadow: 0 10px 26px rgba(214,36,159,0.35);
     max-width: 560px;
+    bottom: calc(78px + env(safe-area-inset-bottom));
 }
 
 /* ── Forms ── */
@@ -181,6 +182,9 @@ nav.tabs button.activo .gema { background: var(--gradient); }
 .campo input, .campo select, .campo textarea {
     width: 100%; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--text);
     border-radius: 11px; padding: 11px 12px; font-size: 14px;
+}
+.campo input[type="date"], .campo input[type="time"] {
+    padding: 11px 8px; font-size: 13.5px;
 }
 .campo textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
 .campo input:focus, .campo select:focus, .campo textarea:focus { outline: none; border-color: var(--magenta); }
@@ -248,18 +252,46 @@ nav.tabs button.activo .gema { background: var(--gradient); }
 .fila-egreso .monto-egreso { font-weight: 800; font-size: 14px; color: #ff8fa3; white-space: nowrap; }
 .fila-egreso .btn-borrar { background: none; border: none; color: var(--text-dim); font-size: 15px; padding: 4px 6px; flex-shrink: 0; }
 
-/* ── Horarios ── */
-.dia-titulo { font-size: 13.5px; font-weight: 800; color: var(--text); margin: 18px 0 8px; letter-spacing: 0.3px; }
-.dia-titulo:first-child { margin-top: 0; }
-.fila-horario { display: flex; align-items: center; gap: 10px; }
-.fila-horario .hora-box {
-    flex-shrink: 0; text-align: center; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 6px 8px; min-width: 58px;
+/* ── Horarios (rediseño especial) ── */
+.dia-header {
+    display: flex; align-items: center; gap: 10px; margin: 22px 0 12px; padding: 10px 14px;
+    border-radius: 14px; background: var(--gradient-soft); border: 1px solid var(--border);
 }
-.fila-horario .hora-box .h1 { font-size: 12px; font-weight: 700; color: var(--text); }
-.fila-horario .hora-box .h2 { font-size: 9.5px; color: var(--text-dim); }
-.fila-horario .info-horario { flex: 1; min-width: 0; }
-.fila-horario .info-horario .clase { font-weight: 700; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fila-horario .info-horario .meta { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dia-header:first-child { margin-top: 0; }
+.dia-header .dia-gema {
+    width: 26px; height: 26px; flex-shrink: 0; clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%);
+}
+.dia-header h2 { font-size: 14.5px; font-weight: 800; letter-spacing: 0.3px; flex: 1; }
+.dia-header .contador { font-size: 10.5px; color: var(--text-dim); font-weight: 700; }
+
+.card-horario {
+    background: var(--card); border: 1px solid var(--border); border-left: 3px solid transparent;
+    border-radius: var(--radius); padding: 13px 14px; margin-bottom: 10px; cursor: pointer;
+    display: flex; align-items: center; gap: 12px;
+}
+.card-horario .hora-gema {
+    flex-shrink: 0; width: 56px; height: 56px; clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 18% 100%, 0% 35%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff;
+}
+.card-horario .hora-gema .h1 { font-size: 12px; font-weight: 800; line-height: 1.1; }
+.card-horario .hora-gema .h2 { font-size: 8.5px; opacity: 0.85; line-height: 1.1; }
+.card-horario .info-clase { flex: 1; min-width: 0; }
+.card-horario .clase-nombre { font-weight: 800; font-size: 15px; font-family: 'Poppins', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-horario .clase-meta { font-size: 11px; color: var(--text-dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.avatares-alumnas { display: flex; align-items: center; margin-top: 8px; }
+.avatar-mini {
+    width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 8.5px; font-weight: 800; color: #fff; border: 2px solid var(--bg2); margin-left: -7px;
+}
+.avatar-mini:first-child { margin-left: 0; }
+.avatar-mini.mas { background: rgba(255,255,255,0.12); font-size: 8px; }
+
+.selector-alumnas-clase { display: flex; flex-wrap: wrap; gap: 7px; max-height: 180px; overflow-y: auto; padding: 2px; }
+.chip-alumna-clase {
+    padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--card);
+    font-size: 11.5px; color: var(--text-dim); font-weight: 600;
+}
+.chip-alumna-clase.activo { background: var(--gradient); color: #fff; border-color: transparent; }
 
 @media (min-width: 480px) {
     #splash img { width: 240px; }
@@ -489,6 +521,10 @@ nav.tabs button.activo .gema { background: var(--gradient); }
                 <label>Salón (opcional)</label>
                 <input type="text" id="horario-salon">
             </div>
+        </div>
+        <div class="campo">
+            <label>Alumnas de esta clase</label>
+            <div class="selector-alumnas-clase" id="selector-alumnas-clase"></div>
         </div>
         <button class="btn-principal" onclick="guardarHorario()">Guardar clase</button>
         <div id="modal-horario-extra"></div>
@@ -1080,6 +1116,7 @@ async function borrarEgreso(id) {
 
 // ══════════════════════ TAB HORARIOS ══════════════════════
 const ORDEN_DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+let _horarioAlumnasSeleccionadas = [];
 async function cargarHorarios() {
     try {
         const json = await fetchJSON('/horarios');
@@ -1106,18 +1143,44 @@ function renderHorarios() {
     document.getElementById('lista-horarios').innerHTML = ORDEN_DIAS
         .filter(dia => porDia[dia]?.length)
         .map(dia => `
-            <div class="dia-titulo">${dia}</div>
-            ${porDia[dia].map(h => `
-                <div class="card" style="cursor:pointer;" onclick="abrirModalHorario('${h.id}')">
-                    <div class="fila-horario">
-                        <div class="hora-box"><div class="h1">${h.hora_inicio}</div><div class="h2">${h.hora_fin}</div></div>
-                        <div class="info-horario">
-                            <div class="clase">${h.genero_baile}</div>
-                            <div class="meta">${[h.instructor, h.salon].filter(Boolean).join(' · ') || '—'}</div>
-                        </div>
+            <div class="dia-header">
+                <div class="dia-gema" style="background:${gradienteGema(dia)};"></div>
+                <h2>${dia}</h2>
+                <span class="contador">${porDia[dia].length} clase(s)</span>
+            </div>
+            ${porDia[dia].map(h => {
+                const alumnas = h.alumnas || [];
+                const visibles = alumnas.slice(0, 5);
+                const restantes = alumnas.length - visibles.length;
+                return `
+                <div class="card-horario" style="border-left-color:${gradienteGema(h.genero_baile).match(/#[0-9a-f]{6}/i)?.[0] || 'var(--magenta)'};" onclick="abrirModalHorario('${h.id}')">
+                    <div class="hora-gema" style="background:${gradienteGema(h.genero_baile)};">
+                        <div class="h1">${h.hora_inicio}</div><div class="h2">${h.hora_fin}</div>
                     </div>
-                </div>`).join('')}
+                    <div class="info-clase">
+                        <div class="clase-nombre">${h.genero_baile}</div>
+                        <div class="clase-meta">${[h.instructor, h.salon].filter(Boolean).join(' · ') || 'Sin instructor/salón asignado'}</div>
+                        ${alumnas.length ? `
+                        <div class="avatares-alumnas">
+                            ${visibles.map(a => `<div class="avatar-mini" style="background:${gradienteGema(a.nombre)};" title="${a.nombre}">${iniciales(a.nombre)}</div>`).join('')}
+                            ${restantes > 0 ? `<div class="avatar-mini mas">+${restantes}</div>` : ''}
+                        </div>` : ''}
+                    </div>
+                </div>`;
+            }).join('')}
         `).join('');
+}
+function renderSelectorAlumnasClase() {
+    const lista = _alumnos.slice().sort((a, b) => a.nombre.localeCompare(b.nombre));
+    document.getElementById('selector-alumnas-clase').innerHTML = lista.map(a => `
+        <button type="button" class="chip-alumna-clase ${_horarioAlumnasSeleccionadas.includes(a.id) ? 'activo' : ''}"
+            onclick="toggleAlumnaClase('${a.id}')">${a.nombre}</button>
+    `).join('') || '<div style="font-size:11.5px;color:var(--text-dim);">Aún no hay alumnas inscritas.</div>';
+}
+function toggleAlumnaClase(id) {
+    const i = _horarioAlumnasSeleccionadas.indexOf(id);
+    if (i >= 0) _horarioAlumnasSeleccionadas.splice(i, 1); else _horarioAlumnasSeleccionadas.push(id);
+    renderSelectorAlumnasClase();
 }
 function abrirModalHorario(id) {
     const h = id ? _horarios.find(x => x.id === id) : null;
@@ -1129,6 +1192,9 @@ function abrirModalHorario(id) {
     document.getElementById('horario-genero').value = h?.genero_baile || '';
     document.getElementById('horario-instructor').value = h?.instructor || '';
     document.getElementById('horario-salon').value = h?.salon || '';
+
+    _horarioAlumnasSeleccionadas = (h?.alumnas || []).map(a => a.id);
+    renderSelectorAlumnasClase();
 
     const extra = document.getElementById('modal-horario-extra');
     extra.innerHTML = h ? `<button class="btn-secundario" style="margin-top:10px;color:var(--danger);" onclick="borrarHorario('${h.id}')">Eliminar clase</button>` : '';
@@ -1150,9 +1216,20 @@ async function guardarHorario() {
     }
     const body = { dia, hora_inicio, hora_fin, genero_baile, instructor, salon };
     try {
-        const resp = id
+        const resultado = id
             ? await fetchJSON(`/horarios?id=${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
             : await fetchJSON('/horarios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const horarioId = id || resultado.data?.id;
+
+        // Sincronizar alumnas asignadas: agrega las nuevas, quita las que se desmarcaron
+        const previas = id ? (_horarios.find(x => x.id === id)?.alumnas || []).map(a => a.id) : [];
+        const agregar = _horarioAlumnasSeleccionadas.filter(aid => !previas.includes(aid));
+        const quitar = previas.filter(aid => !_horarioAlumnasSeleccionadas.includes(aid));
+        await Promise.all([
+            ...agregar.map(alumno_id => fetchJSON('/horario-alumnos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ horario_id: horarioId, alumno_id }) })),
+            ...quitar.map(alumno_id => fetchJSON(`/horario-alumnos?horario_id=${horarioId}&alumno_id=${alumno_id}`, { method: 'DELETE' })),
+        ]);
+
         toast('✅ Clase guardada.', 'success');
         cerrarModal('modal-horario');
         cargarHorarios();

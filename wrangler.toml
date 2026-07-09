@@ -3,8 +3,9 @@ main = "worker.js"
 compatibility_date = "2026-07-01"
 
 [triggers]
-# Todos los días a las 12:00 UTC = 8:00 a.m. hora de Venezuela (UTC-4)
-crons = ["0 12 * * *"]
+# Todos los días a las 12:00 UTC = 8:00 a.m. hora de Venezuela (UTC-4) -> chequeo de vencimientos
+# Cada 5 minutos -> chequeo de recordatorios de clase (30 min y 5 min antes)
+crons = ["0 12 * * *", "*/5 * * * *"]
 
 # Configura el secreto con:
 #   npx wrangler secret put CRON_SECRET
