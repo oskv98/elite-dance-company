@@ -46,10 +46,17 @@ export async function onRequest(context) {
     try {
         if (request.method === 'GET') {
             const data = await supabaseFetch(
-                env, 'horarios?select=*&order=hora_inicio.asc',
+                env,
+                'horarios?select=*,horario_alumnos(alumno_id,alumnos(id,nombre))&order=hora_inicio.asc',
                 { method: 'GET', headers: { 'Prefer': 'return=representation' } }
             );
-            return new Response(JSON.stringify({ ok: true, data: data || [] }), {
+            // Aplanar horario_alumnos -> alumnos: [{id, nombre}] para que el frontend no tenga que anidar
+            const conAlumnas = (data || []).map(h => ({
+                ...h,
+                alumnas: (h.horario_alumnos || []).map(ha => ha.alumnos).filter(Boolean),
+                horario_alumnos: undefined,
+            }));
+            return new Response(JSON.stringify({ ok: true, data: conAlumnas }), {
                 status: 200, headers: { ...CORS, 'Cache-Control': 'no-store' },
             });
         }
