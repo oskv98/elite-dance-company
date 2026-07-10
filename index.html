@@ -1221,18 +1221,26 @@ async function guardarHorario() {
             : await fetchJSON('/horarios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const horarioId = id || resultado.data?.id;
 
-        // Sincronizar alumnas asignadas: agrega las nuevas, quita las que se desmarcaron
+        // Sincronizar alumnas asignadas: agrega las nuevas, quita las que se desmarcaron.
+        // Se usa allSettled para que un fallo aislado en la lista de alumnas no se
+        // reporte como "no se pudo guardar" cuando la clase en sí ya se guardó bien.
         const previas = id ? (_horarios.find(x => x.id === id)?.alumnas || []).map(a => a.id) : [];
         const agregar = _horarioAlumnasSeleccionadas.filter(aid => !previas.includes(aid));
         const quitar = previas.filter(aid => !_horarioAlumnasSeleccionadas.includes(aid));
-        await Promise.all([
+        const resultadosRoster = await Promise.allSettled([
             ...agregar.map(alumno_id => fetchJSON('/horario-alumnos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ horario_id: horarioId, alumno_id }) })),
             ...quitar.map(alumno_id => fetchJSON(`/horario-alumnos?horario_id=${horarioId}&alumno_id=${alumno_id}`, { method: 'DELETE' })),
         ]);
+        const fallos = resultadosRoster.filter(r => r.status === 'rejected');
 
-        toast('✅ Clase guardada.', 'success');
         cerrarModal('modal-horario');
         cargarHorarios();
+        if (fallos.length > 0) {
+            console.error('Fallos sincronizando alumnas de la clase:', fallos);
+            toast('✅ Clase guardada (revisa la lista de alumnas, alguna no se pudo actualizar).', 'success');
+        } else {
+            toast('✅ Clase guardada.', 'success');
+        }
     } catch (err) {
         console.error(err);
         toast(`⚠️ No se pudo guardar: ${err.message}`, 'error');

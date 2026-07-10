@@ -1,5 +1,5 @@
 // ── Cambia este número con cada deploy para forzar actualización ──
-const CACHE_VERSION = 'elite-v1';
+const CACHE_VERSION = 'elite-v2';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 
 const STATIC_ASSETS = [
